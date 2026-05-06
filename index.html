@@ -1,0 +1,313 @@
+  <!DOCTYPE html>
+  <html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <title>Boulangerie Martin – Montpellier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Three.js (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"
+            integrity="sha512-bXPEUzcZ4fF+Owi3U8Uws5csQeFAPwWDL72BanGbHc4SpFA0h5TblRt1S901j/h/dC8InN6LlSsMkkTQ5YqfcA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Simple scroll animation library (AOS) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+          rel="stylesheet" integrity="sha512-GYkFhYoW9KaR+xAHGGTDVSBa/BgUHeRpGZtzeC+IgrG5yZGcER/6Fh6AZ6cJYxQym3bxHjgcgrsY3C2sUKYDgA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"
+            integrity="sha512-8u6lqzAbmXB7uklB6Mj4UjlUf8J2wAmJASoqMDrMjr1CfPY4VmFZot4+UO9FeQeXh+wncGxxe5XGToV6/P4U2g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+      /* ==== Couleurs chaudes ==== */
+      :root {
+        --beige:#f5e8d0;
+        --marron:#8b5e3c;
+        --doré:#cfa15f;
+        --blanc:#ffffff;
+        --gris-fond:#faf4e9;
+      }
+
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{
+        font-family:Arial,Helvetica,sans-serif;
+        color:#333;
+        background:var(--gris-fond);
+        line-height:1.6;
+      }
+      a{color:var(--marron);text-decoration:none;}
+      button{cursor:pointer;}
+
+      /* ==== Hero – Parallax + Three.js ==== */
+      .hero{
+        position:relative;
+        height:100vh;
+        overflow:hidden;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background-image:url('https://images.unsplash.com/photo-1551683063-1fe4d5c6c0d2?auto=format&fit=crop&w=1600&q=80');
+        background-size:cover;
+        background-attachment:fixed;
+        background-position:center;
+        color:var(--blanc);
+      }
+      .hero::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:rgba(0,0,0,0.3);
+      }
+      .hero-content{
+        position:relative;
+        text-align:center;
+        max-width:80%;
+        animation:fadeInUp 1s ease-out forwards;
+        opacity:0;
+      }
+      @keyframes fadeInUp{
+        from{transform:translateY(30px);opacity:0;}
+        to{transform:translateY(0);opacity:1;}
+      }
+      .hero h1{
+        font-size:3rem;
+        margin-bottom:1rem;
+        text-shadow:0 2px 4px rgba(0,0,0,0.4);
+      }
+      .hero button{
+        padding:.8rem 1.5rem;
+        font-size:1rem;
+        background:var(--doré);
+        border:none;
+        border-radius:4px;
+        color:#fff;
+        transition:transform .2s;
+      }
+      .hero button:hover{transform:scale(1.05);}
+
+      /* ==== Sections ==== */
+      section{
+        padding:4rem 2rem;
+        max-width:1200px;
+        margin:auto;
+      }
+      .section-title{
+        font-size:2rem;
+        margin-bottom:2rem;
+        text-align:center;
+        color:var(--marron);
+      }
+      .grid{
+        display:grid;
+        gap:2rem;
+      }
+      .grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+      .grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+      .card{
+        background:#fff;
+        border-radius:8px;
+        overflow:hidden;
+        box-shadow:0 2px 8px rgba(0,0,0,.1);
+        transition:transform .3s;
+      }
+      .card:hover{transform:translateY(-5px);}
+      .card img{width:100%;height:180px;object-fit:cover;}
+      .card p{padding:1rem; text-align:center;}
+
+      /* ==== Formulaire ==== */
+      form{
+        display:flex;
+        flex-direction:column;
+        gap:.8rem;
+        max-width:600px;
+        margin:auto;
+      }
+      input, textarea{
+        padding:.8rem;
+        border:1px solid #ccc;
+        border-radius:4px;
+        font:inherit;
+      }
+      button[type="submit"]{
+        background:var(--marron);
+        color:#fff;
+        border:none;
+        padding:.8rem;
+        border-radius:4px;
+        transition:background .2s;
+      }
+      button[type="submit"]:hover{background:#744e2e;}
+
+      /* ==== Footer ==== */
+      footer{
+        background:var(--marron);
+        color:#fff;
+        padding:2rem;
+        text-align:center;
+        font-size:.9rem;
+      }
+      footer a{color:var(--doré);}
+    </style>
+  </head>
+  <body>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-content" data-aos="fade-down">
+        <h1>Boulangerie Martin</h1>
+        <p>Le goût de la tradition, l’esprit d’aujourd’hui</p>
+        <button onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'});">
+          Découvrir nos produits
+        </button>
+      </div>
+      <!-- Three.js canvas (full size) -->
+      <canvas id="hero-canvas" style="position:absolute; inset:0;"></canvas>
+    </section>
+
+    <!-- NOS SPÉCIALITÉS -->
+    <section id="produits">
+      <h2 class="section-title">Nos spécialités</h2>
+      <div class="grid grid-3">
+        <div class="card" data-aos="zoom-in">
+          <img src="https://images.unsplash.com/photo-1544685427-49757404b377?auto=format&fit=crop&w=600&q=80" alt="Croissant">
+          <p>Croissant au beurre</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="100">
+          <img src="https://images.unsplash.com/photo-1592109491571-bb8b1c3dc5f8?auto=format&fit=crop&w=600&q=80" alt="Pain">
+          <p>Pain traditionnel</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="200">
+          <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80" alt="Baguette">
+          <p>Baguette croustillante</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="300">
+          <img src="https://images.unsplash.com/photo-1568033886813-66d5d8ee8a77?auto=format&fit=crop&w=600&q=80" alt="Éclair">
+          <p>Éclair au chocolat</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="400">
+          <img src="https://images.unsplash.com/photo-1548741598-B0a49b07869e?auto=format&fit=crop&w=600&q=80" alt="Tarte aux fruits">
+          <p>Tarte aux fruits de saison</p>
+        </div>
+        <div class="card" data-aos="zoom-in" data-aos-delay="500">
+          <img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=600&q=80" alt="Pain au chocolat">
+          <p>Pain au chocolat</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTRE HISTOIRE -->
+    <section id="histoire">
+      <h2 class="section-title">Notre histoire</h2>
+      <div class="grid grid-2" style="align-items:center;">
+        <div data-aos="fade-right">
+          <p>Fondée en 1998 au cœur de Montpellier, la Boulangerie Martin perpétue les recettes familiales transmises de génération en génération.
+          Nous sélectionnons les meilleurs farines, le beurre le plus savoureux et les fruits les plus frais pour offrir à chaque client un moment de pur
+  bonheur.</p>
+        </div>
+        <div data-aos="fade-left">
+          <img src="https://images.unsplash.com/photo-1517130038643-efcc459b1db0?auto=format&fit=crop&w=800&q=80"
+               alt="Boulangerie intérieure" style="width:100%;border-radius:8px;">
+        </div>
+      </div>
+    </section>
+
+    <!-- HORAIRES & ADRESSE -->
+    <section id="contact-info">
+      <h2 class="section-title">Horaires & Adresse</h2>
+      <div class="grid grid-2" style="text-align:center;">
+        <div data-aos="fade-up">
+          <h3>Adresse</h3>
+          <p>12 Rue de la Charité<br>34000 Montpellier, France</p>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="100">
+          <h3>Horaires</h3>
+          <p>Lundi – Samedi : 07:00 – 19:30<br>Dimanche : 08:00 – 14:00</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULAIRE DE CONTACT -->
+    <section id="contact">
+      <h2 class="section-title">Contactez‑nous</h2>
+      <form onsubmit="event.preventDefault(); alert('Message envoyé !'); this.reset();">
+        <input type="text" placeholder="Nom" required>
+        <input type="email" placeholder="Email" required>
+        <textarea rows="4" placeholder="Votre message" required></textarea>
+        <button type="submit">Envoyer</button>
+      </form>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>© 2026 Boulangerie Martin – Montpellier</p>
+      <p>
+        <a href="#hero">Haut de page</a> |
+        <a href="https://www.instagram.com">Instagram</a> |
+        <a href="https://www.facebook.com">Facebook</a>
+      </p>
+    </footer>
+
+    <!-- ==== Scripts ==== -->
+    <script>
+      // Initialiser AOS (scroll animations)
+      AOS.init({duration:800, once:true});
+
+      // === Three.js : particules dorées flottantes sur la hero ===
+      const canvas = document.getElementById('hero-canvas');
+      const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // Géométrie des particules
+      const particleCount = 120;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const speeds = new Float32Array(particleCount);
+      for(let i=0;i<particleCount;i++){
+        positions[i*3] = (Math.random()-0.5)*8;      // x
+        positions[i*3+1] = (Math.random()-0.5)*5;    // y
+        positions[i*3+2] = (Math.random()-0.5)*8;    // z
+        speeds[i] = 0.001 + Math.random()*0.004;
+      }
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+      geometry.setAttribute('speed', new THREE.BufferAttribute(speeds,1));
+
+      const material = new THREE.PointsMaterial({
+        color: 0xD4AF37,          // doré
+        size: 0.07,
+        transparent:true,
+        opacity:0.8
+      });
+
+      const particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      // Redimensionnement
+      function onResize(){
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        renderer.setSize(w,h);
+        camera.aspect = w/h;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', onResize);
+      onResize();
+
+      // Animation
+      function animate(){
+        requestAnimationFrame(animate);
+        const pos = geometry.attributes.position.array;
+        const spd = geometry.attributes.speed.array;
+        for(let i=0;i<particleCount;i++){
+          pos[i*3+1] += spd[i];
+          if(pos[i*3+1] > 3) pos[i*3+1] = -3;
+        }
+        geometry.attributes.position.needsUpdate = true;
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+  </html>
